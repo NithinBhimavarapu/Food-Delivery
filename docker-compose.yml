@@ -11,4 +11,4 @@ services:
     ports:
       - '5000:5000'
     environment:
-      - mongo_url=mongodb+srv://AkhilPuppala:umLsSsfuRrLfithN@cluster0.e6z5o.mongodb.net/foodDB  
+      - in local repo file , add it when needed
