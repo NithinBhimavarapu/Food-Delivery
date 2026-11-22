@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+environment {
+        MONGO_URL = "mongodb+srv://AkhilPuppala:umLsSsfuRrLfithN@cluster0.e6z5o.mongodb.net/foodDB"
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
+    }
+    stages {
+        stage('Stage 1: Git Clone') {
+            steps {
+                git branch: 'main',
+                url: 'https://github.com/AkhilPuppala/FoodDelivery.git'
+            }
+        }
+        stage('client build') {
+            steps {
+                dir('frontend'){
+                sh "npm install"
+                sh 'docker build -t frontend-image .'
+            }
+            }
+        }
+        stage("Server build") {
+            steps {
+                dir('backend'){
+                sh "npm install"
+                sh 'docker build -t backend-image .'
+            }}
+        }
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                        sh "docker login --username akhilpuppala --password Akhil@1203"
+                        sh 'docker tag frontend-image akhilpuppala/frontend-image:latest'
+                        sh 'docker push akhilpuppala/frontend-image:latest'
+                        sh "docker tag backend-image akhilpuppala/backend-image:latest"
+                        sh "docker push akhilpuppala/backend-image:latest"
+                    
+                }
+            }
+        }
+        stage('Docker-Compose Deployment') {
+            steps {
+                script { 
+                    sh 'ansible-playbook -i inventory playbook.yml -vvv'
+                }
+            }
+        }
+    }
+}
